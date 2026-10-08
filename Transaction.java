@@ -1,8 +1,4 @@
-public enum TransactionType {
-    DEPOSIT,
-    WITHDRAWAL,
-    INTEREST
-}
+
 import java.time.LocalDateTime;
 
 public class Transaction {
