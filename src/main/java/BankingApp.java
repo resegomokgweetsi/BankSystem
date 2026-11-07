@@ -1,3 +1,4 @@
+import java.awt.GraphicsEnvironment;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -546,6 +547,11 @@ public class BankingApp extends Application {
         return formContainer;
     }
     public static void main(String[] args) {
+        if (GraphicsEnvironment.isHeadless()) {
+            System.out.println("No display detected. Running the console banking demo instead.");
+            Main.main(args);
+            return;
+        }
         launch(args);
     }
 }

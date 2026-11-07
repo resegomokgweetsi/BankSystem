@@ -1,0 +1,7 @@
+target/
+.vscode/
+bin/
+.classpath
+.project
+.settings/
+*.class
