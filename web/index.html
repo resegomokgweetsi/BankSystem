@@ -96,6 +96,9 @@
     .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; margin-bottom: 22px; }
     .metric, .panel { border: 1px solid #e8edf3; border-radius: 13px; background: white; box-shadow: 0 4px 16px #223a5a08; }
     .metric { min-height: 125px; padding: 19px 20px; }
+    .metric-action { display: block; width: 100%; color: inherit; text-align: left; }
+    .metric-action:hover { border-color: #cbdcf5; box-shadow: 0 6px 20px #223a5a14; }
+    .metric-action:focus-visible { outline: 2px solid #75a5f2; outline-offset: 3px; }
     .metric-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; color: #75849a; font-size: 12px; font-weight: 600; }
     .metric-icon { display: grid; width: 31px; height: 31px; place-items: center; border-radius: 9px; color: #3472d5; background: #edf4ff; font-size: 15px; }
     .metric-value { color: #192a44; font-size: 25px; font-weight: 750; letter-spacing: -.04em; }
@@ -302,6 +305,8 @@
       authError: "",
       serverError: "",
       customerGrouping: "none",
+      accountViewMode: "manage",
+      transactionViewMode: "manage",
       customers: []
     };
 
@@ -479,19 +484,35 @@
       return `
         <p class="welcome">Welcome back. Here is your banking overview.</p>
         <section class="metrics" aria-label="Banking summary">
-          <article class="metric"><div class="metric-head">Total customers <span class="metric-icon">♙</span></div><div class="metric-value">${state.customers.length}</div><div class="metric-note">Registered customers</div></article>
-          <article class="metric"><div class="metric-head">Total accounts <span class="metric-icon">▤</span></div><div class="metric-value">${accounts.length}</div><div class="metric-note">Across all customers</div></article>
-          <article class="metric"><div class="metric-head">Total balance <span class="metric-icon">◈</span></div><div class="metric-value">${currency(totalBalance)}</div><div class="metric-note">Combined account balances</div></article>
-          <article class="metric"><div class="metric-head">Transactions <span class="metric-icon">↔</span></div><div class="metric-value">${transactions.length}</div><div class="metric-note">Recorded activity</div></article>
+          <button class="metric metric-action" type="button" data-go="customers" data-view-mode="registered" aria-label="View registered customers">
+            <div class="metric-head">Total customers <span class="metric-icon">♙</span></div>
+            <div class="metric-value">${state.customers.length}</div>
+            <div class="metric-note">Registered customers</div>
+          </button>
+          <button class="metric metric-action" type="button" data-go="accounts" data-view-mode="list" aria-label="View all accounts">
+            <div class="metric-head">Total accounts <span class="metric-icon">▤</span></div>
+            <div class="metric-value">${accounts.length}</div>
+            <div class="metric-note">Across all customers</div>
+          </button>
+          <button class="metric metric-action" type="button" data-go="accounts" data-view-mode="balances" aria-label="View account balances">
+            <div class="metric-head">Total balance <span class="metric-icon">◈</span></div>
+            <div class="metric-value">${currency(totalBalance)}</div>
+            <div class="metric-note">Combined account balances</div>
+          </button>
+          <button class="metric metric-action" type="button" data-go="transactions" data-view-mode="history" aria-label="View transaction history">
+            <div class="metric-head">Transactions <span class="metric-icon">↔</span></div>
+            <div class="metric-value">${transactions.length}</div>
+            <div class="metric-note">Recorded activity</div>
+          </button>
         </section>
         <section class="content-grid">
           <div>
             <article class="panel">
-              <div class="panel-heading"><h2>Registered customers</h2><button class="text-button" data-go="customers">View all customers →</button></div>
+              <div class="panel-heading"><h2>Registered customers</h2><button class="text-button" data-go="customers" data-view-mode="registered">View all customers →</button></div>
               <div class="table-wrap"><table><thead><tr><th>Customer</th><th>ID</th><th>Gender</th><th>Location</th><th>Contact</th><th>Accounts</th></tr></thead><tbody>${renderCustomerRows(customers)}</tbody></table></div>
             </article>
             <article class="panel">
-              <div class="panel-heading"><h2>Account balances</h2><span class="subtle">By account type</span></div>
+              <div class="panel-heading"><h2>Account balances</h2><button class="text-button" data-go="accounts" data-view-mode="balances">View balances →</button></div>
               <div class="balance-list">${totalsByType.map((item) => `
                 <div class="balance-row">
                   <div class="balance-caption"><span>${item.type} accounts</span><strong>${currency(item.balance)}</strong></div>
@@ -500,16 +521,17 @@
             </article>
           </div>
           <article class="panel">
-            <div class="panel-heading"><h2>Recent activity</h2><button class="text-button" data-go="transactions">View transactions →</button></div>
+            <div class="panel-heading"><h2>Recent activity</h2><button class="text-button" data-go="transactions" data-view-mode="history">View transactions →</button></div>
             ${renderActivity(transactions)}
           </article>
         </section>`;
     }
 
     function customersMarkup() {
+      const registeredOnly = state.customerDirectoryMode === "registered";
       return `
-        <div class="view-toolbar"><h2>Customer directory</h2><span class="subtle">${state.customers.length} registered</span></div>
-        <article class="panel">
+        <div class="view-toolbar"><h2>${registeredOnly ? "Registered customers" : "Customer directory"}</h2><span class="subtle">${state.customers.length} registered</span></div>
+        ${registeredOnly ? "" : `<article class="panel">
           <div class="panel-heading"><h2>Add a customer</h2><span class="subtle">All fields are required</span></div>
           <form id="customer-form" class="form-grid">
             <label class="field">Customer ID<input name="id" placeholder="e.g. C004" required></label>
@@ -521,9 +543,9 @@
             <button class="primary" type="submit">Add customer</button>
           </form>
           <p class="message ${state.noticeError ? "error" : ""}" role="status">${escapeHtml(state.notice)}</p>
-        </article>
+        </article>`}
         <article class="panel" style="margin-top:18px">
-          <div class="panel-heading"><h2>Customer search results</h2><span class="subtle">Customer records and account count</span></div>
+          <div class="panel-heading"><h2>${registeredOnly ? "Registered customers" : "Customer search results"}</h2><span class="subtle">Customer records and account count</span></div>
           <div class="customer-results-controls">
             <label class="field">Group results by
               <select id="customer-group-by">
@@ -541,11 +563,19 @@
 
     function accountsMarkup() {
       const rows = allAccounts();
+      const totalBalance = rows.reduce((sum, item) => sum + item.account.balance, 0);
+      const balanceView = state.accountViewMode === "balances";
+      const typeBalances = ["Savings", "Investment", "Cheque"].map((type) => ({
+        type,
+        balance: rows.filter((item) => item.account.type === type)
+          .reduce((sum, item) => sum + item.account.balance, 0)
+      }));
+      const maxTypeBalance = Math.max(1, ...typeBalances.map((item) => item.balance));
       const customerOptions = state.customers.map((customer) =>
         `<option value="${escapeHtml(customer.id)}">${escapeHtml(customer.id)} · ${escapeHtml(fullName(customer))}</option>`).join("");
       return `
-        <div class="view-toolbar"><h2>Accounts</h2><span class="subtle">${rows.length} accounts · ${currency(rows.reduce((sum, item) => sum + item.account.balance, 0))} total</span></div>
-        <article class="panel">
+        <div class="view-toolbar"><h2>${balanceView ? "Account balances" : "Accounts"}</h2><span class="subtle">${rows.length} accounts · ${currency(totalBalance)} total</span></div>
+        ${state.accountViewMode === "manage" ? `<article class="panel">
           <div class="panel-heading"><h2>Create an account</h2><span class="subtle">Assign it to a customer</span></div>
           <form id="account-form">
             <div class="form-grid">
@@ -562,19 +592,28 @@
             </div>
             <p class="message ${state.noticeError ? "error" : ""}" role="status">${escapeHtml(state.notice)}</p>
           </form>
-        </article>
+        </article>` : ""}
+        ${balanceView ? `<article class="panel">
+          <div class="panel-heading"><h2>Balances by account type</h2><span class="subtle">Total ${currency(totalBalance)}</span></div>
+          <div class="balance-list">${typeBalances.map((item) => `
+            <div class="balance-row">
+              <div class="balance-caption"><span>${item.type} accounts</span><strong>${currency(item.balance)}</strong></div>
+              <div class="bar"><span class="${item.type.toLowerCase()}" style="width:${Math.max(3, item.balance / maxTypeBalance * 100)}%"></span></div>
+            </div>`).join("")}</div>
+        </article>` : ""}
         <article class="panel" style="margin-top:18px">
-          <div class="panel-heading"><h2>All accounts</h2><span class="subtle">Balances update when transactions are applied</span></div>
+          <div class="panel-heading"><h2>${balanceView ? "Account details" : "All accounts"}</h2><span class="subtle">Balances update when transactions are applied</span></div>
           <div class="table-wrap"><table><thead><tr><th>Account number</th><th>Type</th><th>Customer</th><th>Branch</th><th>Balance</th></tr></thead><tbody>${renderAccountRows(rows)}</tbody></table></div>
         </article>`;
     }
 
     function transactionsMarkup() {
+      const historyOnly = state.transactionViewMode === "history";
       const customerOptions = state.customers.map((customer) =>
         `<option value="${escapeHtml(customer.id)}">${escapeHtml(customer.id)} · ${escapeHtml(fullName(customer))}</option>`).join("");
       return `
-        <div class="view-toolbar"><h2>Transactions</h2><span class="subtle">${allTransactions().length} recorded</span></div>
-        <section class="two-column">
+        <div class="view-toolbar"><h2>${historyOnly ? "Transaction history" : "Transactions"}</h2><span class="subtle">${allTransactions().length} recorded</span></div>
+        ${historyOnly ? "" : `<section class="two-column">
           <article class="panel">
             <div class="panel-heading"><h2>Quick actions</h2><span class="subtle">Deposit or withdraw</span></div>
             <form id="transaction-form">
@@ -593,7 +632,7 @@
             <div class="subtle" style="line-height:1.8">Deposits and withdrawals update the selected account balance immediately. Withdrawals cannot exceed the available balance.</div>
             <div class="notice">Customer, account, and transaction changes are saved in the local SQLite database.</div>
           </article>
-        </section>
+        </section>`}
         <article class="panel" style="margin-top:18px">
           <div class="panel-heading"><h2>Transaction history</h2><span class="subtle">Newest first</span></div>
           <div class="table-wrap"><table><thead><tr><th>Reference</th><th>Type</th><th>Account</th><th>Customer</th><th>Amount</th><th>Date</th></tr></thead><tbody>${renderTransactions(allTransactions())}</tbody></table></div>
@@ -849,7 +888,8 @@
       bindAccountForm();
       bindTransactionForm();
       document.querySelectorAll("[data-go]").forEach((button) =>
-        button.addEventListener("click", () => setView(button.dataset.go)));
+        button.addEventListener("click", () =>
+          setView(button.dataset.go, button.dataset.viewMode || "manage")));
       const search = document.querySelector("#search");
       search.oninput = () => {
         const query = search.value.trim().toLowerCase();
@@ -861,7 +901,7 @@
               .some((value) => value.toLowerCase().includes(query)));
           document.querySelector("#accounts-view tbody").innerHTML = renderAccountRows(matches);
         } else if (query) {
-          setView("customers");
+          setView("customers", "registered");
         }
       };
       const grouping = document.querySelector("#customer-group-by");
@@ -872,8 +912,11 @@
       if (state.view === "customers") renderCustomerSearchResults();
     }
 
-    function setView(view) {
+    function setView(view, viewMode = "manage") {
       state.view = view;
+      if (view === "customers") state.customerDirectoryMode = viewMode;
+      if (view === "accounts") state.accountViewMode = viewMode;
+      if (view === "transactions") state.transactionViewMode = viewMode;
       state.notice = "";
       state.noticeError = false;
       render();
