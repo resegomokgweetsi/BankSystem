@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bank System Dashboard</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #17243b;
+      background: #f4f7fb;
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 246px;
+      flex: 0 0 246px;
+      display: flex;
+      flex-direction: column;
+      padding: 27px 18px 20px;
+      color: #d7e3f5;
+      background: #10233f;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 10px 34px;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+    .brand:focus-visible { border-radius: 9px; outline: 2px solid #75a5f2; outline-offset: 4px; }
+    .brand-mark {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 12px;
+      color: white;
+      background: #3978e8;
+      font-size: 19px;
+      font-weight: 800;
+    }
+    .brand-name { color: white; font-size: 15px; font-weight: 750; letter-spacing: .01em; }
+    .nav-label { padding: 0 11px 11px; color: #8296b4; font-size: 10px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    .nav { display: grid; gap: 6px; }
+    .nav button {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: 13px;
+      padding: 11px 12px;
+      border: 0;
+      border-radius: 9px;
+      color: #adbed5;
+      background: transparent;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .nav button:hover { color: white; background: #1b3558; }
+    .nav button.active { color: white; background: #24466f; box-shadow: inset 3px 0 #5c9aff; }
+    .nav-icon { width: 18px; color: #95afd1; font-size: 16px; text-align: center; }
+    .sidebar-bottom { margin-top: auto; padding: 17px 11px 0; border-top: 1px solid #293d59; color: #8296b4; font-size: 11px; line-height: 1.7; }
+
+    .main { width: min(100% - 246px, 1440px); margin: 0 auto; padding: 30px 42px 45px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 30px; }
+    .eyebrow { margin-bottom: 7px; color: #78879b; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 0; color: #17243b; font-size: clamp(24px, 3vw, 30px); letter-spacing: -.04em; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .search {
+      width: min(230px, 28vw);
+      padding: 10px 13px;
+      border: 1px solid #e1e7ef;
+      border-radius: 9px;
+      outline: 0;
+      background: white;
+      color: #17243b;
+      font-size: 12px;
+    }
+    .search:focus, input:focus, select:focus { border-color: #75a5f2; box-shadow: 0 0 0 3px #e7f0ff; outline: 0; }
+    .avatar { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; color: #2e5b9e; background: #dceaff; font-size: 12px; font-weight: 800; }
+    .welcome { margin: 0 0 22px; color: #69798f; font-size: 13px; }
+    .welcome strong { color: #253854; }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; margin-bottom: 22px; }
+    .metric, .panel { border: 1px solid #e8edf3; border-radius: 13px; background: white; box-shadow: 0 4px 16px #223a5a08; }
+    .metric { min-height: 125px; padding: 19px 20px; }
+    .metric-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; color: #75849a; font-size: 12px; font-weight: 600; }
+    .metric-icon { display: grid; width: 31px; height: 31px; place-items: center; border-radius: 9px; color: #3472d5; background: #edf4ff; font-size: 15px; }
+    .metric-value { color: #192a44; font-size: 25px; font-weight: 750; letter-spacing: -.04em; }
+    .metric-note { margin-top: 5px; color: #8996a8; font-size: 10px; }
+
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(290px, .9fr); gap: 18px; }
+    .panel { padding: 20px; }
+    .panel + .panel { margin-top: 18px; }
+    .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+    .panel-heading h2 { margin: 0; color: #243650; font-size: 14px; letter-spacing: -.01em; }
+    .subtle { color: #8794a7; font-size: 11px; }
+    .text-button { padding: 5px 0; border: 0; color: #3472d5; background: transparent; font-size: 11px; font-weight: 700; }
+
+    .table-wrap { width: 100%; overflow-x: auto; }
+    .customer-results-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin-bottom: 12px; }
+    .customer-results-controls .field { width: min(230px, 100%); }
+    .customer-search-status { align-self: center; margin: 0; }
+    .customer-group-row td { padding-top: 11px; padding-bottom: 11px; color: #344b6b; background: #f3f7fd; font-weight: 750; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 10px 9px; border-bottom: 1px solid #edf0f4; color: #8995a6; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+    td { padding: 12px 9px; border-bottom: 1px solid #f0f2f6; color: #48586e; font-size: 11px; white-space: nowrap; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .customer-cell { display: flex; align-items: center; gap: 9px; color: #293a53; font-weight: 650; }
+    .initials { display: grid; width: 29px; height: 29px; flex: 0 0 29px; place-items: center; border-radius: 9px; color: #3767a7; background: #edf4ff; font-size: 9px; font-weight: 800; }
+    .pill { display: inline-flex; align-items: center; padding: 5px 8px; border-radius: 20px; color: #3769ad; background: #edf4ff; font-size: 10px; font-weight: 700; }
+    .amount { color: #253650; font-weight: 700; }
+    .positive { color: #218661; font-weight: 700; }
+    .negative { color: #c05252; font-weight: 700; }
+    .activity { display: grid; gap: 0; }
+    .activity-row { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid #f0f2f6; }
+    .activity-row:last-child { border-bottom: 0; }
+    .activity-icon { display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; border-radius: 50%; color: #218661; background: #eaf8f1; font-size: 14px; font-weight: 700; }
+    .activity-icon.withdrawal { color: #c05252; background: #fff0ef; }
+    .activity-copy { min-width: 0; flex: 1; }
+    .activity-title { overflow: hidden; color: #34445c; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .activity-meta { margin-top: 4px; color: #929eae; font-size: 10px; }
+    .activity-amount { font-size: 11px; font-weight: 750; white-space: nowrap; }
+    .balance-list { display: grid; gap: 15px; }
+    .balance-row { display: grid; gap: 7px; }
+    .balance-caption { display: flex; justify-content: space-between; gap: 12px; color: #66768b; font-size: 11px; }
+    .balance-caption strong { color: #35465e; }
+    .bar { height: 6px; overflow: hidden; border-radius: 9px; background: #eff2f6; }
+    .bar span { display: block; height: 100%; border-radius: inherit; background: #5489e8; }
+    .bar .investment { background: #59b89a; }
+    .bar .cheque { background: #e6a957; }
+
+    .view { display: none; }
+    .view.active { display: block; }
+    .view-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 17px; }
+    .view-toolbar h2 { margin: 0; color: #243650; font-size: 15px; }
+    .primary, .secondary {
+      min-height: 37px;
+      padding: 0 14px;
+      border: 1px solid #2f70d6;
+      border-radius: 8px;
+      color: white;
+      background: #3478df;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .primary:hover { background: #2867c7; }
+    .secondary { border-color: #e1e7ef; color: #425570; background: white; }
+    .secondary:hover { background: #f6f8fb; }
+    .form-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: end; }
+    .field { display: grid; gap: 6px; color: #687990; font-size: 10px; font-weight: 700; }
+    .field input, .field select {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid #dfe6ef;
+      border-radius: 8px;
+      color: #283b55;
+      background: white;
+      font-size: 11px;
+    }
+    .optional-fields { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .optional-fields[hidden] { display: none; }
+    .form-actions { display: flex; align-items: end; gap: 9px; }
+    .message { min-height: 16px; margin: 10px 0 0; color: #708197; font-size: 11px; }
+    .message.error { color: #c05252; }
+    .empty { padding: 22px 10px; color: #8996a8; font-size: 11px; text-align: center; }
+    .two-column { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(270px, .7fr); gap: 18px; }
+    .notice { margin-top: 18px; padding: 12px 14px; border: 1px solid #d9e8ff; border-radius: 9px; color: #46658f; background: #f3f8ff; font-size: 11px; line-height: 1.5; }
+
+    .auth-backdrop {
+      position: fixed;
+      z-index: 10;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: #10233f99;
+      backdrop-filter: blur(4px);
+    }
+    .auth-backdrop[hidden], .auth-close[hidden] { display: none; }
+    .auth-dialog {
+      position: relative;
+      width: min(100%, 410px);
+      padding: 30px;
+      border: 1px solid #e5ebf3;
+      border-radius: 17px;
+      background: white;
+      box-shadow: 0 24px 80px #10233f45;
+    }
+    .auth-close {
+      position: absolute;
+      top: 13px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 50%;
+      color: #718198;
+      background: #f2f5f9;
+      font-size: 19px;
+    }
+    .auth-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; color: #1b2e49; font-weight: 750; }
+    .auth-brand .brand-mark { width: 34px; height: 34px; border-radius: 10px; font-size: 17px; }
+    .auth-dialog h2 { margin: 0; color: #1d2e47; font-size: 21px; letter-spacing: -.03em; }
+    .auth-copy { margin: 8px 0 20px; color: #78879b; font-size: 12px; line-height: 1.6; }
+    .auth-form { display: grid; gap: 14px; }
+    .auth-form .primary { width: 100%; margin-top: 4px; }
+    .auth-error { min-height: 16px; margin: 0; color: #c05252; font-size: 11px; }
+    .auth-hint { margin: 16px 0 0; padding: 10px 12px; border-radius: 8px; color: #6f7f94; background: #f4f7fb; font-size: 10px; line-height: 1.6; }
+    .auth-hint strong { color: #425570; }
+    .auth-user { margin: 0 0 18px; padding: 12px; border-radius: 9px; color: #496381; background: #f3f7fd; font-size: 12px; }
+
+    @media (max-width: 1050px) {
+      .main { padding: 26px 25px 38px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .content-grid, .two-column { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .app { display: block; }
+      .sidebar { width: 100%; padding: 13px 15px; }
+      .brand { padding: 0 3px 12px; }
+      .nav-label, .sidebar-bottom { display: none; }
+      .nav { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .nav button { justify-content: center; gap: 6px; padding: 9px 5px; font-size: 10px; }
+      .nav-icon { width: auto; }
+      .main { width: 100%; padding: 22px 15px 32px; }
+      .topbar { align-items: flex-start; flex-wrap: wrap; margin-bottom: 21px; }
+      .top-actions { width: 100%; }
+      .search { display: block; flex: 1; width: auto; min-width: 0; }
+      .metrics { gap: 9px; }
+      .metric { min-height: 110px; padding: 14px; }
+      .metric-value { font-size: 20px; }
+      .metric-head { gap: 7px; font-size: 10px; }
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .panel { padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <button class="brand" id="brand-button" type="button" aria-haspopup="dialog" aria-controls="auth-dialog">
+        <div class="brand-mark">B</div>
+        <div class="brand-name">BankSystem</div>
+      </button>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav" aria-label="Dashboard sections">
+        <button class="active" data-view="dashboard"><span class="nav-icon">⌂</span>Dashboard</button>
+        <button data-view="customers"><span class="nav-icon">♙</span>Customers</button>
+        <button data-view="accounts"><span class="nav-icon">▤</span>Accounts</button>
+        <button data-view="transactions"><span class="nav-icon">↔</span>Transactions</button>
+      </nav>
+      <div class="sidebar-bottom">Banking operations<br>Gaborone, Botswana</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow" id="date-label"></div>
+          <h1 id="page-title">Dashboard</h1>
+        </div>
+        <div class="top-actions">
+          <input class="search" id="search" type="search" placeholder="Search customers by ID, phone, surname, address or account type" aria-label="Search customers by ID, phone, surname, address or account type">
+          <div class="avatar" aria-label="BankSystem user">BS</div>
+        </div>
+      </header>
+      <div class="view active" id="dashboard-view"></div>
+      <div class="view" id="customers-view"></div>
+      <div class="view" id="accounts-view"></div>
+      <div class="view" id="transactions-view"></div>
+    </main>
+  </div>
+  <div class="auth-backdrop" id="auth-dialog" hidden>
+    <section class="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <button class="auth-close" id="auth-close" type="button" aria-label="Close sign-in dialog">×</button>
+      <div class="auth-brand"><span class="brand-mark">B</span><span>BankSystem</span></div>
+      <div id="auth-content"></div>
+    </section>
+  </div>
+
+  <script>
+    const state = {
+      view: "dashboard",
+      notice: "",
+      noticeError: false,
+      initialized: false,
+      authenticated: false,
+      username: "",
+      authError: "",
+      serverError: "",
+      customerGrouping: "none",
+      customers: []
+    };
+
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[char]);
+    const currency = (amount) => "BWP " + Number(amount).toLocaleString("en", {
+      minimumFractionDigits: 2, maximumFractionDigits: 2
+    });
+    const allAccounts = () => state.customers.flatMap((customer) =>
+      customer.accounts.map((account) => ({ customer, account })));
+    const allTransactions = () => allAccounts().flatMap(({ customer, account }) =>
+      account.transactions.map((transaction) => ({ ...transaction, customer, account })))
+      .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
+    const initials = (customer) => (customer.firstName[0] + customer.surname[0]).toUpperCase();
+    const fullName = (customer) => `${customer.firstName} ${customer.surname}`;
+    const typeLabel = (type) => `${type} Account`;
+
+    async function apiRequest(path, options = {}) {
+      const request = {
+        method: options.method || "GET",
+        credentials: "same-origin",
+        headers: {}
+      };
+      if (options.body !== undefined) {
+        request.headers["Content-Type"] = "application/json";
+        request.body = JSON.stringify(options.body);
+      }
+      const response = await fetch(path, request);
+      const text = await response.text();
+      let payload = {};
+      if (text) {
+        try {
+          payload = JSON.parse(text);
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            throw new Error("The local server returned an invalid response.");
+          }
+          throw error;
+        }
+      }
+      if (!response.ok) {
+        throw new Error(payload.error || `Request failed (${response.status}).`);
+      }
+      return payload;
+    }
+
+    async function loadCustomers() {
+      state.customers = await apiRequest("/api/customers");
+    }
+
+    function showFormError(form, message) {
+      state.notice = message;
+      state.noticeError = true;
+      const status = form.querySelector(".message");
+      if (status) {
+        status.textContent = message;
+        status.classList.add("error");
+      }
+    }
+
+    function renderCustomerRows(customers) {
+      if (!customers.length) return '<tr><td class="empty" colspan="6">No customers found.</td></tr>';
+      return customers.map((customer) => `
+        <tr>
+          <td><div class="customer-cell"><span class="initials">${escapeHtml(initials(customer))}</span>${escapeHtml(fullName(customer))}</div></td>
+          <td>${escapeHtml(customer.id)}</td><td>${escapeHtml(customer.gender)}</td>
+          <td>${escapeHtml(customer.address)}</td><td>${escapeHtml(customer.contact)}</td>
+          <td>${customer.accounts.length}</td>
+        </tr>`).join("");
+    }
+
+    function customerMatchesQuery(customer, query) {
+      return [
+        customer.id,
+        customer.firstName,
+        customer.surname,
+        customer.gender,
+        customer.address,
+        customer.contact,
+        ...customer.accounts.flatMap((account) => [account.type, typeLabel(account.type)])
+      ].some((value) => value.toLowerCase().includes(query));
+    }
+
+    function groupCustomers(customers, grouping) {
+      if (grouping === "none") return [{ label: "", customers }];
+      const groups = new Map();
+      customers.forEach((customer) => {
+        const accountTypes = [...new Set(customer.accounts.map((account) => account.type))];
+        const keys = grouping === "gender"
+          ? [customer.gender]
+          : accountTypes.length ? accountTypes : ["No accounts"];
+        keys.forEach((accountType) => {
+          const label = grouping === "gender"
+            ? `Gender: ${customer.gender}`
+            : grouping === "accountType"
+              ? `Account type: ${accountType}`
+              : `Gender: ${customer.gender} · Account type: ${accountType}`;
+          if (!groups.has(label)) groups.set(label, []);
+          groups.get(label).push(customer);
+        });
+      });
+      return [...groups].map(([label, groupedCustomers]) => ({ label, customers: groupedCustomers }));
+    }
+
+    function renderCustomerSearchResults() {
+      const body = document.querySelector("#customers-view tbody");
+      const status = document.querySelector("#customer-search-status");
+      if (!body || !status) return;
+
+      const query = document.querySelector("#search").value.trim();
+      const normalizedQuery = query.toLowerCase();
+      const matches = state.customers.filter((customer) => customerMatchesQuery(customer, normalizedQuery));
+      const groupedResults = groupCustomers(matches, state.customerGrouping);
+      body.innerHTML = matches.length
+        ? groupedResults.map(({ label, customers }) => `
+            ${label ? `<tr class="customer-group-row"><td colspan="6">${escapeHtml(label)}</td></tr>` : ""}
+            ${renderCustomerRows(customers)}`).join("")
+        : renderCustomerRows([]);
+      const groupingLabel = state.customerGrouping === "none"
+        ? ""
+        : `, grouped by ${state.customerGrouping === "gender" ? "gender" : state.customerGrouping === "accountType" ? "account type" : "gender and account type"}`;
+      status.textContent = query
+        ? `${matches.length} customer${matches.length === 1 ? "" : "s"} found for “${query}”${groupingLabel}.`
+        : `Showing ${matches.length} customer${matches.length === 1 ? "" : "s"}${groupingLabel}.`;
+    }
+
+    function renderAccountRows(rows) {
+      if (!rows.length) return '<tr><td class="empty" colspan="5">No accounts found.</td></tr>';
+      return rows.map(({ customer, account }) => `
+        <tr>
+          <td>${escapeHtml(account.number)}</td><td><span class="pill">${escapeHtml(typeLabel(account.type))}</span></td>
+          <td>${escapeHtml(fullName(customer))}</td><td>${escapeHtml(account.branch)}</td>
+          <td class="amount">${currency(account.balance)}</td>
+        </tr>`).join("");
+    }
+
+    function renderTransactions(rows) {
+      if (!rows.length) return '<tr><td class="empty" colspan="5">No transactions yet. Use Quick Actions to record one.</td></tr>';
+      return rows.map((item) => `
+        <tr>
+          <td>${escapeHtml(item.id)}</td>
+          <td><span class="pill">${escapeHtml(item.type)}</span></td>
+          <td>${escapeHtml(item.account.number)}</td>
+          <td>${escapeHtml(fullName(item.customer))}</td>
+          <td class="${item.type === "Deposit" ? "positive" : "negative"}">${item.type === "Deposit" ? "+" : "−"}${currency(item.amount)}</td>
+          <td>${new Date(item.timestamp).toLocaleString()}</td>
+        </tr>`).join("");
+    }
+
+    function renderActivity(rows) {
+      if (!rows.length) return '<div class="empty">No recent activity. Transactions will appear here.</div>';
+      return `<div class="activity">${rows.slice(0, 5).map((item) => `
+        <div class="activity-row">
+          <div class="activity-icon ${item.type === "Withdraw" ? "withdrawal" : ""}">${item.type === "Deposit" ? "↓" : "↑"}</div>
+          <div class="activity-copy">
+            <div class="activity-title">${escapeHtml(item.type)} · ${escapeHtml(fullName(item.customer))}</div>
+            <div class="activity-meta">${escapeHtml(item.account.number)} · ${new Date(item.timestamp).toLocaleDateString()}</div>
+          </div>
+          <div class="activity-amount ${item.type === "Deposit" ? "positive" : "negative"}">${item.type === "Deposit" ? "+" : "−"}${currency(item.amount)}</div>
+        </div>`).join("")}</div>`;
+    }
+
+    function dashboardMarkup() {
+      const accounts = allAccounts();
+      const totalBalance = accounts.reduce((sum, item) => sum + item.account.balance, 0);
+      const transactions = allTransactions();
+      const totalsByType = ["Savings", "Investment", "Cheque"].map((type) => ({
+        type,
+        balance: accounts.filter((item) => item.account.type === type)
+          .reduce((sum, item) => sum + item.account.balance, 0)
+      }));
+      const maxTypeBalance = Math.max(1, ...totalsByType.map((item) => item.balance));
+      const customers = state.customers.slice(0, 5);
+      return `
+        <p class="welcome">Welcome back. Here is your banking overview.</p>
+        <section class="metrics" aria-label="Banking summary">
+          <article class="metric"><div class="metric-head">Total customers <span class="metric-icon">♙</span></div><div class="metric-value">${state.customers.length}</div><div class="metric-note">Registered customers</div></article>
+          <article class="metric"><div class="metric-head">Total accounts <span class="metric-icon">▤</span></div><div class="metric-value">${accounts.length}</div><div class="metric-note">Across all customers</div></article>
+          <article class="metric"><div class="metric-head">Total balance <span class="metric-icon">◈</span></div><div class="metric-value">${currency(totalBalance)}</div><div class="metric-note">Combined account balances</div></article>
+          <article class="metric"><div class="metric-head">Transactions <span class="metric-icon">↔</span></div><div class="metric-value">${transactions.length}</div><div class="metric-note">Recorded activity</div></article>
+        </section>
+        <section class="content-grid">
+          <div>
+            <article class="panel">
+              <div class="panel-heading"><h2>Registered customers</h2><button class="text-button" data-go="customers">View all customers →</button></div>
+              <div class="table-wrap"><table><thead><tr><th>Customer</th><th>ID</th><th>Gender</th><th>Location</th><th>Contact</th><th>Accounts</th></tr></thead><tbody>${renderCustomerRows(customers)}</tbody></table></div>
+            </article>
+            <article class="panel">
+              <div class="panel-heading"><h2>Account balances</h2><span class="subtle">By account type</span></div>
+              <div class="balance-list">${totalsByType.map((item) => `
+                <div class="balance-row">
+                  <div class="balance-caption"><span>${item.type} accounts</span><strong>${currency(item.balance)}</strong></div>
+                  <div class="bar"><span class="${item.type.toLowerCase()}" style="width:${Math.max(3, item.balance / maxTypeBalance * 100)}%"></span></div>
+                </div>`).join("")}</div>
+            </article>
+          </div>
+          <article class="panel">
+            <div class="panel-heading"><h2>Recent activity</h2><button class="text-button" data-go="transactions">View transactions →</button></div>
+            ${renderActivity(transactions)}
+          </article>
+        </section>`;
+    }
+
+    function customersMarkup() {
+      return `
+        <div class="view-toolbar"><h2>Customer directory</h2><span class="subtle">${state.customers.length} registered</span></div>
+        <article class="panel">
+          <div class="panel-heading"><h2>Add a customer</h2><span class="subtle">All fields are required</span></div>
+          <form id="customer-form" class="form-grid">
+            <label class="field">Customer ID<input name="id" placeholder="e.g. C004" required></label>
+            <label class="field">First name<input name="firstName" required></label>
+            <label class="field">Surname<input name="surname" required></label>
+            <label class="field">Gender<select name="gender" required><option value="" selected disabled>Choose gender</option><option value="Male">Male</option><option value="Female">Female</option></select></label>
+            <label class="field">Address / town<input name="address" required></label>
+            <label class="field">Contact number<input name="contact" inputmode="tel" required></label>
+            <button class="primary" type="submit">Add customer</button>
+          </form>
+          <p class="message ${state.noticeError ? "error" : ""}" role="status">${escapeHtml(state.notice)}</p>
+        </article>
+        <article class="panel" style="margin-top:18px">
+          <div class="panel-heading"><h2>Customer search results</h2><span class="subtle">Customer records and account count</span></div>
+          <div class="customer-results-controls">
+            <label class="field">Group results by
+              <select id="customer-group-by">
+                <option value="none" ${state.customerGrouping === "none" ? "selected" : ""}>No grouping</option>
+                <option value="gender" ${state.customerGrouping === "gender" ? "selected" : ""}>Gender</option>
+                <option value="accountType" ${state.customerGrouping === "accountType" ? "selected" : ""}>Account type</option>
+                <option value="genderAndAccountType" ${state.customerGrouping === "genderAndAccountType" ? "selected" : ""}>Gender and account type</option>
+              </select>
+            </label>
+            <p class="subtle customer-search-status" id="customer-search-status" role="status" aria-live="polite"></p>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Customer</th><th>ID</th><th>Gender</th><th>Location</th><th>Contact</th><th>Accounts</th></tr></thead><tbody>${renderCustomerRows(state.customers)}</tbody></table></div>
+        </article>`;
+    }
+
+    function accountsMarkup() {
+      const rows = allAccounts();
+      const customerOptions = state.customers.map((customer) =>
+        `<option value="${escapeHtml(customer.id)}">${escapeHtml(customer.id)} · ${escapeHtml(fullName(customer))}</option>`).join("");
+      return `
+        <div class="view-toolbar"><h2>Accounts</h2><span class="subtle">${rows.length} accounts · ${currency(rows.reduce((sum, item) => sum + item.account.balance, 0))} total</span></div>
+        <article class="panel">
+          <div class="panel-heading"><h2>Create an account</h2><span class="subtle">Assign it to a customer</span></div>
+          <form id="account-form">
+            <div class="form-grid">
+              <label class="field">Customer<select name="customer" required>${customerOptions}</select></label>
+              <label class="field">Account number<input name="number" placeholder="e.g. SA003" required></label>
+              <label class="field">Account type<select name="type" id="account-type"><option value="Savings">Savings</option><option value="Investment">Investment</option><option value="Cheque">Cheque</option></select></label>
+              <label class="field">Branch<input name="branch" placeholder="e.g. Gaborone" required></label>
+              <label class="field">Initial balance (BWP)<input name="balance" type="number" min="0" step="0.01" value="0.00" required></label>
+              <div class="optional-fields" id="cheque-fields" hidden>
+                <label class="field">Company name<input name="companyName"></label>
+                <label class="field">Company address<input name="companyAddress"></label>
+              </div>
+              <button class="primary" type="submit">Create account</button>
+            </div>
+            <p class="message ${state.noticeError ? "error" : ""}" role="status">${escapeHtml(state.notice)}</p>
+          </form>
+        </article>
+        <article class="panel" style="margin-top:18px">
+          <div class="panel-heading"><h2>All accounts</h2><span class="subtle">Balances update when transactions are applied</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Account number</th><th>Type</th><th>Customer</th><th>Branch</th><th>Balance</th></tr></thead><tbody>${renderAccountRows(rows)}</tbody></table></div>
+        </article>`;
+    }
+
+    function transactionsMarkup() {
+      const customerOptions = state.customers.map((customer) =>
+        `<option value="${escapeHtml(customer.id)}">${escapeHtml(customer.id)} · ${escapeHtml(fullName(customer))}</option>`).join("");
+      return `
+        <div class="view-toolbar"><h2>Transactions</h2><span class="subtle">${allTransactions().length} recorded</span></div>
+        <section class="two-column">
+          <article class="panel">
+            <div class="panel-heading"><h2>Quick actions</h2><span class="subtle">Deposit or withdraw</span></div>
+            <form id="transaction-form">
+              <div class="form-grid">
+                <label class="field">Customer<select name="customer" id="transaction-customer">${customerOptions}</select></label>
+                <label class="field">Account<select name="account" id="transaction-account"></select></label>
+                <label class="field">Action<select name="type"><option value="Deposit">Deposit</option><option value="Withdraw">Withdraw</option></select></label>
+                <label class="field">Amount (BWP)<input name="amount" type="number" min="0.01" step="0.01" placeholder="100.00" required></label>
+              </div>
+              <div class="form-actions" style="margin-top:14px"><button class="primary" type="submit">Apply transaction</button></div>
+              <p class="message ${state.noticeError ? "error" : ""}" role="status">${escapeHtml(state.notice)}</p>
+            </form>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><h2>Transaction notes</h2></div>
+            <div class="subtle" style="line-height:1.8">Deposits and withdrawals update the selected account balance immediately. Withdrawals cannot exceed the available balance.</div>
+            <div class="notice">Customer, account, and transaction changes are saved in the local SQLite database.</div>
+          </article>
+        </section>
+        <article class="panel" style="margin-top:18px">
+          <div class="panel-heading"><h2>Transaction history</h2><span class="subtle">Newest first</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Reference</th><th>Type</th><th>Account</th><th>Customer</th><th>Amount</th><th>Date</th></tr></thead><tbody>${renderTransactions(allTransactions())}</tbody></table></div>
+        </article>`;
+    }
+
+    function bindCustomerForm() {
+      const form = document.querySelector("#customer-form");
+      if (!form) return;
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const values = Object.fromEntries(new FormData(form));
+        try {
+          await apiRequest("/api/customers", { method: "POST", body: values });
+          await loadCustomers();
+          state.notice = "Customer added successfully.";
+          state.noticeError = false;
+          render();
+        } catch (error) {
+          showFormError(form, error.message);
+        }
+      });
+    }
+
+    function bindTransactionForm() {
+      const form = document.querySelector("#transaction-form");
+      if (!form) return;
+      const customerSelect = form.elements.customer;
+      const accountSelect = form.elements.account;
+      const updateAccounts = () => {
+        const customer = state.customers.find((item) => item.id === customerSelect.value);
+        accountSelect.innerHTML = customer ? customer.accounts.map((account) =>
+          `<option value="${escapeHtml(account.number)}">${escapeHtml(account.number)} · ${escapeHtml(account.type)} · ${currency(account.balance)}</option>`).join("") : "";
+        accountSelect.disabled = !customer || customer.accounts.length === 0;
+      };
+      customerSelect.addEventListener("change", updateAccounts);
+      updateAccounts();
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const customer = state.customers.find((item) => item.id === customerSelect.value);
+        const account = customer?.accounts.find((item) => item.number === accountSelect.value);
+        const type = form.elements.type.value;
+        const amount = Number(form.elements.amount.value);
+        if (!account) {
+          showFormError(form, "Choose a customer account first.");
+          return;
+        }
+        if (!Number.isFinite(amount) || amount <= 0) {
+          showFormError(form, "Enter an amount greater than zero.");
+          return;
+        }
+        if (type === "Withdraw" && amount > account.balance) {
+          showFormError(form, `Insufficient funds. Available balance: ${currency(account.balance)}.`);
+          return;
+        }
+        try {
+          const result = await apiRequest("/api/transactions", {
+            method: "POST",
+            body: { account: account.number, type, amount: form.elements.amount.value }
+          });
+          await loadCustomers();
+          state.notice = `${type} successful. New balance: ${currency(result.balance)}.`;
+          state.noticeError = false;
+          render();
+        } catch (error) {
+          showFormError(form, error.message);
+        }
+      });
+    }
+
+    function bindAccountForm() {
+      const form = document.querySelector("#account-form");
+      if (!form) return;
+      const typeSelect = form.elements.type;
+      const chequeFields = document.querySelector("#cheque-fields");
+      const companyName = form.elements.companyName;
+      const companyAddress = form.elements.companyAddress;
+      const updateChequeFields = () => {
+        const isCheque = typeSelect.value === "Cheque";
+        chequeFields.hidden = !isCheque;
+        companyName.required = isCheque;
+        companyAddress.required = isCheque;
+      };
+      typeSelect.addEventListener("change", updateChequeFields);
+      updateChequeFields();
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const values = Object.fromEntries(new FormData(form));
+        const customer = state.customers.find((item) => item.id === values.customer);
+        const number = values.number.trim();
+        if (!customer) {
+          showFormError(form, "Choose a customer for this account.");
+          return;
+        }
+        try {
+          await apiRequest("/api/accounts", { method: "POST", body: values });
+          await loadCustomers();
+          state.notice = `${typeLabel(values.type)} ${number} created for ${fullName(customer)}.`;
+          state.noticeError = false;
+          render();
+        } catch (error) {
+          showFormError(form, error.message);
+        }
+      });
+    }
+
+    function renderAuthDialog() {
+      const content = document.querySelector("#auth-content");
+      const closeButton = document.querySelector("#auth-close");
+      document.querySelector(".app").inert = !state.authenticated;
+      closeButton.hidden = !state.authenticated;
+      if (state.serverError) {
+        content.innerHTML = `
+          <h2 id="auth-title">BankSystem unavailable</h2>
+          <p class="auth-copy">${escapeHtml(state.serverError)}</p>
+          <button class="primary" id="retry-server" type="button">Try again</button>`;
+        document.querySelector("#retry-server").addEventListener("click", initialize);
+        return;
+      }
+      if (!state.initialized) {
+        content.innerHTML = `
+          <h2 id="auth-title">Create your owner login</h2>
+          <p class="auth-copy">Set up the first account for this local BankSystem installation.</p>
+          <form class="auth-form" id="setup-form">
+            <label class="field">Username<input name="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9._-]+" autocomplete="username" required></label>
+            <label class="field">Password<input name="password" type="password" minlength="12" autocomplete="new-password" required></label>
+            <p class="auth-error" id="auth-error" role="alert">${escapeHtml(state.authError)}</p>
+            <button class="primary" type="submit">Create owner login</button>
+          </form>
+          <p class="auth-hint">The password is hashed on the server and only its hash is stored in the local database. Use a unique password.</p>`;
+        document.querySelector("#setup-form").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const values = Object.fromEntries(new FormData(form));
+          try {
+            const result = await apiRequest("/api/setup", { method: "POST", body: values });
+            state.initialized = true;
+            state.authenticated = result.authenticated;
+            state.username = result.username;
+            state.authError = "";
+            state.serverError = "";
+            await loadCustomers();
+            document.querySelector("#auth-dialog").hidden = true;
+            renderAuthDialog();
+            render();
+          } catch (error) {
+            state.authError = error.message;
+            document.querySelector("#auth-error").textContent = error.message;
+          }
+        });
+        return;
+      }
+      if (state.authenticated) {
+        content.innerHTML = `
+          <h2 id="auth-title">You’re signed in</h2>
+          <p class="auth-copy">Your local BankSystem session is active.</p>
+          <p class="auth-user">Signed in as <strong>${escapeHtml(state.username)}</strong></p>
+          <p class="auth-error" id="auth-error" role="alert">${escapeHtml(state.authError)}</p>
+          <button class="primary" id="logout-button" type="button">Log out</button>`;
+        document.querySelector("#logout-button").addEventListener("click", async () => {
+          try {
+            await apiRequest("/api/logout", { method: "POST" });
+            state.authenticated = false;
+            state.username = "";
+            state.authError = "";
+            renderAuthDialog();
+          } catch (error) {
+            state.authError = error.message;
+            renderAuthDialog();
+          }
+        });
+        return;
+      }
+
+      content.innerHTML = `
+        <h2 id="auth-title">Log in to BankSystem</h2>
+        <p class="auth-copy">Enter your local account details to continue.</p>
+        <form class="auth-form" id="login-form">
+          <label class="field">Username<input name="username" autocomplete="username" required></label>
+          <label class="field">Password<input name="password" type="password" autocomplete="current-password" required></label>
+          <p class="auth-error" id="auth-error" role="alert">${escapeHtml(state.authError)}</p>
+          <button class="primary" type="submit">Log in</button>
+        </form>
+        <p class="auth-hint">Login is checked by the local server. Your account is stored in the local database.</p>`;
+      document.querySelector("#login-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const values = Object.fromEntries(new FormData(event.currentTarget));
+        try {
+          const result = await apiRequest("/api/login", { method: "POST", body: values });
+          state.initialized = true;
+          state.authenticated = true;
+          state.username = result.username;
+          state.authError = "";
+          state.serverError = "";
+          await loadCustomers();
+          document.querySelector("#auth-dialog").hidden = true;
+          renderAuthDialog();
+          render();
+        } catch (error) {
+          state.authError = error.message;
+          document.querySelector("#auth-error").textContent = error.message;
+        }
+      });
+    }
+
+    function openAuthDialog() {
+      renderAuthDialog();
+      document.querySelector("#auth-dialog").hidden = false;
+      const firstControl = document.querySelector("#auth-content input, #auth-content button");
+      if (firstControl) firstControl.focus();
+    }
+
+    async function initialize() {
+      state.serverError = "";
+      try {
+        const status = await apiRequest("/api/status");
+        state.initialized = status.initialized;
+        state.authenticated = status.authenticated;
+        state.username = status.username || "";
+        state.authError = "";
+        if (state.authenticated) {
+          await loadCustomers();
+        }
+        render();
+        if (state.authenticated) {
+          renderAuthDialog();
+        } else {
+          openAuthDialog();
+        }
+      } catch (error) {
+        state.authenticated = false;
+        state.serverError = `Could not connect to the local BankSystem server. ${error.message}`;
+        render();
+        openAuthDialog();
+      }
+    }
+
+    function render() {
+      const titles = { dashboard: "Dashboard", customers: "Customers", accounts: "Accounts", transactions: "Transactions" };
+      document.querySelector("#page-title").textContent = titles[state.view];
+      document.querySelector("#date-label").textContent = new Date().toLocaleDateString(undefined, {
+        weekday: "long", year: "numeric", month: "long", day: "numeric"
+      });
+      document.querySelectorAll(".view").forEach((view) => view.classList.remove("active"));
+      document.querySelector(`#${state.view}-view`).classList.add("active");
+      document.querySelectorAll(".nav button").forEach((button) =>
+        button.classList.toggle("active", button.dataset.view === state.view));
+      document.querySelector("#dashboard-view").innerHTML = dashboardMarkup();
+      document.querySelector("#customers-view").innerHTML = customersMarkup();
+      document.querySelector("#accounts-view").innerHTML = accountsMarkup();
+      document.querySelector("#transactions-view").innerHTML = transactionsMarkup();
+      bindCustomerForm();
+      bindAccountForm();
+      bindTransactionForm();
+      document.querySelectorAll("[data-go]").forEach((button) =>
+        button.addEventListener("click", () => setView(button.dataset.go)));
+      const search = document.querySelector("#search");
+      search.oninput = () => {
+        const query = search.value.trim().toLowerCase();
+        if (state.view === "customers") {
+          renderCustomerSearchResults();
+        } else if (state.view === "accounts") {
+          const matches = allAccounts().filter(({ customer, account }) =>
+            [customer.id, fullName(customer), account.number, account.type, account.branch]
+              .some((value) => value.toLowerCase().includes(query)));
+          document.querySelector("#accounts-view tbody").innerHTML = renderAccountRows(matches);
+        } else if (query) {
+          setView("customers");
+        }
+      };
+      const grouping = document.querySelector("#customer-group-by");
+      grouping.onchange = () => {
+        state.customerGrouping = grouping.value;
+        renderCustomerSearchResults();
+      };
+      if (state.view === "customers") renderCustomerSearchResults();
+    }
+
+    function setView(view) {
+      state.view = view;
+      state.notice = "";
+      state.noticeError = false;
+      render();
+    }
+
+    document.querySelectorAll(".nav button").forEach((button) =>
+      button.addEventListener("click", () => setView(button.dataset.view)));
+    document.querySelector("#brand-button").addEventListener("click", openAuthDialog);
+    document.querySelector("#auth-close").addEventListener("click", () => {
+      document.querySelector("#auth-dialog").hidden = true;
+    });
+    document.querySelector("#auth-dialog").addEventListener("click", (event) => {
+      if (event.target === event.currentTarget && state.authenticated) {
+        event.currentTarget.hidden = true;
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.authenticated) {
+        document.querySelector("#auth-dialog").hidden = true;
+      }
+    });
+    initialize();
+  </script>
+</body>
+</html>

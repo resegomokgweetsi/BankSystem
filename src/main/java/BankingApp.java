@@ -137,6 +137,7 @@ public class BankingApp extends Application {
                     .orElse("No accounts assigned.");
             details.setText("Customer ID: " + customer.getCustomerId()
                     + "\nName: " + customer.getFirstName() + " " + customer.getSurname()
+                    + "\nGender: " + customer.getGender()
                     + "\nAddress: " + customer.getAddress()
                     + "\nContact: " + customer.getContactDetails()
                     + "\n\nAccounts:\n" + accountDetails);
@@ -156,6 +157,7 @@ public class BankingApp extends Application {
                 customerColumn("Customer ID", "customerId", 120),
                 customerColumn("First Name", "firstName", 150),
                 customerColumn("Surname", "surname", 160),
+                customerColumn("Gender", "gender", 100),
                 customerColumn("Address", "address", 200),
                 customerColumn("Contact", "contactDetails", 150)
         );
@@ -327,7 +329,8 @@ public class BankingApp extends Application {
             }
             if ("Withdraw".equals(type)
                     && amount.compareTo(BigDecimal.valueOf(account.getBalance())) > 0) {
-                throw new IllegalArgumentException("Insufficient funds.");
+                throw new IllegalArgumentException("Insufficient funds. Available balance: "
+                        + formatCurrency(account.getBalance()) + ".");
             }
 
             double value = amount.doubleValue();
@@ -462,6 +465,11 @@ public class BankingApp extends Application {
         TextField contactInput = new TextField();
         contactInput.setPromptText("Contact details");
 
+        ComboBox<String> genderInput = new ComboBox<>();
+        genderInput.getItems().setAll("Male", "Female");
+        genderInput.setPromptText("Gender");
+        genderInput.setMaxWidth(Double.MAX_VALUE);
+
         Button registerButton = new Button("Register Customer");
         registerButton.setStyle(
                 "-fx-background-color: #2563eb; " +
@@ -480,19 +488,21 @@ public class BankingApp extends Application {
         form.add(idInput, 0, 0);
         form.add(firstNameInput, 1, 0);
         form.add(surnameInput, 2, 0);
-        form.add(addressInput, 0, 1);
-        form.add(contactInput, 1, 1);
-        form.add(registerButton, 2, 1);
+        form.add(genderInput, 0, 1);
+        form.add(addressInput, 1, 1);
+        form.add(contactInput, 2, 1);
+        form.add(registerButton, 0, 2);
 
         registerButton.setOnAction(event -> {
             String id = idInput.getText().trim();
             String firstName = firstNameInput.getText().trim();
             String surname = surnameInput.getText().trim();
+            String gender = genderInput.getValue();
             String address = addressInput.getText().trim();
             String contact = contactInput.getText().trim();
 
             if (id.isEmpty() || firstName.isEmpty()
-                    || surname.isEmpty() || address.isEmpty()
+                    || surname.isEmpty() || gender == null || address.isEmpty()
                     || contact.isEmpty()) {
                 status.setText("Please complete all fields.");
                 status.setStyle("-fx-text-fill: #b91c1c;");
@@ -511,7 +521,7 @@ public class BankingApp extends Application {
 
             try {
                 Customer newCustomer = new Customer(
-                        id, firstName, surname, address, contact
+                        id, firstName, surname, gender, address, contact
                 );
 
                 customers.add(newCustomer);
@@ -528,6 +538,7 @@ public class BankingApp extends Application {
                 surnameInput.clear();
                 addressInput.clear();
                 contactInput.clear();
+                genderInput.getSelectionModel().clearSelection();
             } catch (IllegalArgumentException exception) {
                 status.setText("Could not register customer: "
                         + exception.getMessage());

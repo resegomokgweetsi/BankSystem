@@ -6,6 +6,7 @@ public class Customer {
     private String customerId;
     private String firstName;
     private String surname;
+    private String gender;
     private String address;
     private String contactDetails;
 
@@ -13,10 +14,16 @@ public class Customer {
 
     public Customer(String customerId, String firstName, String surname,
                     String address, String contactDetails) {
+        this(customerId, firstName, surname, "Unspecified", address, contactDetails);
+    }
+
+    public Customer(String customerId, String firstName, String surname,
+                    String gender, String address, String contactDetails) {
 
         this.customerId = customerId;
         this.firstName = firstName;
         this.surname = surname;
+        this.gender = gender;
         this.address = address;
         this.contactDetails = contactDetails;
 
@@ -33,6 +40,10 @@ public class Customer {
 
     public String getSurname() {
         return surname;
+    }
+
+    public String getGender() {
+        return gender;
     }
 
     public String getAddress() {
@@ -64,6 +75,7 @@ public class Customer {
         System.out.println("\n===== CUSTOMER DETAILS =====");
         System.out.println("Customer ID: " + customerId);
         System.out.println("Name: " + firstName + " " + surname);
+        System.out.println("Gender: " + gender);
         System.out.println("Address: " + address);
         System.out.println("Contact: " + contactDetails);
 

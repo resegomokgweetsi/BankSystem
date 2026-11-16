@@ -1,5 +1,6 @@
 /workspaces/BankSystem/src/main/java/Account.java
 /workspaces/BankSystem/src/main/java/BankAccount.java
+/workspaces/BankSystem/src/main/java/BankDatabase.java
 /workspaces/BankSystem/src/main/java/BankingApp.java
 /workspaces/BankSystem/src/main/java/ChequeAccount.java
 /workspaces/BankSystem/src/main/java/Controller/AccountController.java
@@ -9,7 +10,9 @@
 /workspaces/BankSystem/src/main/java/EmploymentDetails.java
 /workspaces/BankSystem/src/main/java/IBankAccount.java
 /workspaces/BankSystem/src/main/java/InvestmentAccount.java
+/workspaces/BankSystem/src/main/java/LocalBankServer.java
 /workspaces/BankSystem/src/main/java/Main.java
+/workspaces/BankSystem/src/main/java/PasswordHasher.java
 /workspaces/BankSystem/src/main/java/SampleData.java
 /workspaces/BankSystem/src/main/java/SavingsAccount.java
 /workspaces/BankSystem/src/main/java/Transaction.java

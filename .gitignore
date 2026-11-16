@@ -5,3 +5,6 @@ bin/
 .project
 .settings/
 *.class
+*.db
+*.db-shm
+*.db-wal

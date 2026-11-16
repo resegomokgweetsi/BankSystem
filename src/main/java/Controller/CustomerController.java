@@ -13,9 +13,19 @@ public class CustomerController {
                                String surname,
                                String address,
                                String contact) {
+        return addCustomer(id, firstName, surname, "Unspecified", address, contact);
+    }
+
+    public boolean addCustomer(String id,
+                               String firstName,
+                               String surname,
+                               String gender,
+                               String address,
+                               String contact) {
 
         if (id.isEmpty() || firstName.isEmpty()
                 || surname.isEmpty()
+                || gender.isEmpty()
                 || address.isEmpty()
                 || contact.isEmpty()) {
             return false;
@@ -28,7 +38,7 @@ public class CustomerController {
         }
 
         Customer newCustomer =
-                new Customer(id, firstName, surname, address, contact);
+                new Customer(id, firstName, surname, gender, address, contact);
 
         customers.add(newCustomer);
 

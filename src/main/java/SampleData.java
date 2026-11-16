@@ -8,40 +8,48 @@ public class SampleData {
 
         Customer customer1 = new Customer(
                 "C001",
-                "Resego",
-                "Mokgweetsi",
-                "Gaborone",
-                "71234567"
+                "Alex",
+                "Example",
+                "Demo City",
+                "70000001"
         );
-        customer1.addAccount(new SavingsAccount("SA001", 1500.00, "Gaborone"));
-        customer1.addAccount(new InvestmentAccount("IA001", 1000.00, "Gaborone"));
+        customer1.addAccount(new SavingsAccount("SA001", 1500.00, "Demo City"));
+        customer1.addAccount(new InvestmentAccount("IA001", 1000.00, "Demo City"));
         customers.add(customer1);
 
         Customer customer2 = new Customer(
                 "C002",
-                "Mpho",
-                "Molefe",
-                "Francistown",
-                "76543210"
+                "Jordan",
+                "Sample",
+                "Sample City",
+                "70000002"
         );
         customer2.addAccount(new ChequeAccount(
                 "CA001",
                 2200.00,
-                "Francistown",
-                "Blue Sky Logistics",
-                "Francistown"
+                "Sample City",
+                "Sample Logistics",
+                "Sample City"
         ));
         customers.add(customer2);
 
         Customer customer3 = new Customer(
                 "C003",
-                "Keabetswe",
-                "Ntsima",
-                "Maun",
-                "73333333"
+                "Taylor",
+                "Demo",
+                "Demo Town",
+                "70000003"
         );
-        customer3.addAccount(new SavingsAccount("SA002", 2500.00, "Maun"));
+        customer3.addAccount(new SavingsAccount("SA002", 2500.00, "Demo Town"));
         customers.add(customer3);
+
+        customers.add(new Customer(
+                "C004",
+                "Casey",
+                "Test",
+                "Sample City",
+                "70000004"
+        ));
 
         return customers;
     }
