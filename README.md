@@ -1,51 +1,71 @@
 # BankSystem
 
-## Run the JavaFX banking dashboard
+This is the public source repository for the BankSystem desktop application:
+[github.com/resegomokgweetsi/BankSystem](https://github.com/resegomokgweetsi/BankSystem).
 
-Requires JDK 25 or newer and Maven. From the project directory, run:
+Clone it with:
 
 ```sh
-mvn javafx:run
+git clone https://github.com/resegomokgweetsi/BankSystem.git
+cd BankSystem
 ```
-
-The desktop dashboard opens as a JavaFX window with customer search, account
-management, balances, transaction history, and deposit/withdraw actions. On
-first start, create the owner login; subsequent starts require that login.
-Credentials are checked locally and only a salted password hash is stored.
-Customer, account, and transaction changes use the local `BankSystem.db`
-SQLite database, shared with the optional browser application.
-The Transactions view shows all recorded transactions newest first, with an
-option to filter the history to one customer across all of their accounts.
-Selecting a customer opens a profile with their contact details, accounts,
-balances, and complete transaction history. Employment details are marked as
-not recorded because the current customer records do not store them.
-
-Run this command in a desktop terminal on your ProBook to open the JavaFX
-window. A headless Codespace has no desktop display, so it can compile the app
-but cannot show the window.
 
 ## Run the desktop GUI
 
-From the project directory, run:
+Install [JDK 25 or newer](https://adoptium.net/temurin/releases/) and make sure
+`java` is available in your terminal. Maven is downloaded automatically by the
+included Maven Wrapper.
 
-```sh
-mvn exec:java
+From a desktop terminal in the project directory, launch the GUI:
+
+**Windows (PowerShell):**
+
+```powershell
+.\mvnw.cmd javafx:run
 ```
 
-This opens the JavaFX banking dashboard as a desktop window.
+**macOS/Linux:**
+
+```sh
+./mvnw javafx:run
+```
+
+The first launch downloads Maven dependencies and opens the JavaFX banking
+dashboard. Create the owner login when prompted; subsequent launches require
+that login. The GUI provides:
+
+- Dashboard summaries and customer/account search
+- Customer and account management with balances
+- Complete transaction history, with an all-customers view and customer filter
+- Customer profiles with contact details, accounts, balances, and transactions
+
+The app creates `BankSystem.db` in the project directory and keeps its data
+locally. A new database is seeded with fictional sample customers and accounts.
+Do not commit or share the database file.
+
+Run the GUI on a computer with a desktop display. Headless environments such
+as GitHub Codespaces can build the project but cannot display the JavaFX window.
+
+## Run in VS Code
+
+Open the project folder in VS Code and select **Terminal > Run Task > Run
+BankSystem GUI**.
 
 ## Run the optional browser application
 
-From the project directory, start the Java server explicitly:
+The desktop GUI is the default. To start the optional local web server instead:
 
-```sh
-mvn exec:java -Dexec.mainClass=LocalBankServer
+**Windows (PowerShell):**
+
+```powershell
+.\mvnw.cmd exec:java -Dexec.mainClass=LocalBankServer
 ```
 
-Customer, account, and transaction changes are stored in the local
-`BankSystem.db` SQLite file. A new database starts with fictional sample
-customers and accounts. Existing databases are preserved. New customers must
-have Male or Female selected. Do not commit or share the database file.
+**macOS/Linux:**
+
+```sh
+./mvnw exec:java -Dexec.mainClass=LocalBankServer
+```
 
 This is a local project application, not a production banking system. Do not
 use it to store live customer financial data without a security and compliance

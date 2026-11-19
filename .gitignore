@@ -8,3 +8,6 @@ bin/
 *.db
 *.db-shm
 *.db-wal
+*.log
+launch-error.txt
+oracleJdk-*/

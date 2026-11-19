@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run BankSystem GUI",
+			"type": "shell",
+			"command": "./mvnw",
+			"windows": {
+				"command": ".\\mvnw.cmd"
+			},
+			"args": [
+				"javafx:run"
+			],
+			"group": "build"
+		}
+	]
+}
