@@ -8,26 +8,39 @@ Requires JDK 25 or newer and Maven. From the project directory, run:
 mvn javafx:run
 ```
 
-The desktop dashboard loads the customers and accounts from `SampleData`. It
-includes customer and account views, account balances, transaction history,
-and deposit/withdraw actions.
+The desktop dashboard opens as a JavaFX window with customer search, account
+management, balances, transaction history, and deposit/withdraw actions. On
+first start, create the owner login; subsequent starts require that login.
+Credentials are checked locally and only a salted password hash is stored.
+Customer, account, and transaction changes use the local `BankSystem.db`
+SQLite database, shared with the optional browser application.
+The Transactions view shows all recorded transactions newest first, with an
+option to filter the history to one customer across all of their accounts.
+Selecting a customer opens a profile with their contact details, accounts,
+balances, and complete transaction history. Employment details are marked as
+not recorded because the current customer records do not store them.
 
 Run this command in a desktop terminal on your ProBook to open the JavaFX
 window. A headless Codespace has no desktop display, so it can compile the app
 but cannot show the window.
 
-## Run the persistent browser application
+## Run the desktop GUI
 
-From the project directory, start the Java server:
+From the project directory, run:
 
 ```sh
 mvn exec:java
 ```
 
-Open `http://localhost:4173` (or the forwarded port 4173 in a Codespace). On
-first start, create your owner username and password. Passwords must be at
-least 12 characters; the server stores a salted password hash, not the
-password. Click the BankSystem logo to open the sign-in/sign-out dialog.
+This opens the JavaFX banking dashboard as a desktop window.
+
+## Run the optional browser application
+
+From the project directory, start the Java server explicitly:
+
+```sh
+mvn exec:java -Dexec.mainClass=LocalBankServer
+```
 
 Customer, account, and transaction changes are stored in the local
 `BankSystem.db` SQLite file. A new database starts with fictional sample

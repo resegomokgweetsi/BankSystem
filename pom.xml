@@ -58,7 +58,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
-                    <mainClass>LocalBankServer</mainClass>
+                    <mainClass>BankingApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
