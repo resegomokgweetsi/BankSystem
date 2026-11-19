@@ -11,9 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public final class BankDatabase {
-
     public record UserCredentials(String username, byte[] salt, byte[] passwordHash) {}
-
     public record CustomerData(
             String id,
             String firstName,
@@ -22,7 +20,6 @@ public final class BankDatabase {
             String address,
             String contact,
             List<AccountData> accounts) {}
-
     public record AccountData(
             String number,
             String type,
@@ -31,19 +28,14 @@ public final class BankDatabase {
             String companyName,
             String companyAddress,
             List<TransactionData> transactions) {}
-
     public record TransactionData(String id, String type, double amount, String timestamp) {}
-
     public enum TransactionStatus {
         COMPLETED,
         ACCOUNT_NOT_FOUND,
         INSUFFICIENT_FUNDS
     }
-
     public record TransactionOutcome(TransactionStatus status, long balanceCents) {}
-
     private final String jdbcUrl;
-
     public BankDatabase(Path file) {
         jdbcUrl = "jdbc:sqlite:" + file.toAbsolutePath();
     }
